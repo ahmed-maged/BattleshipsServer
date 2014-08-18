@@ -26,21 +26,7 @@
     "private": true,
 
     "dependencies": {
-        "express"     : "4.5.0",
-        "async"       : "0.9.0",
-        "socket.io"   : "0.9.17",
-        "body-parser" : "1.2.2",
-        "mongodb"     : "1.4.5",
-        "mongojs"     : "0.13.0",
-        "intravenous" : "latest",
-        "underscore"  : "1.6.0",
-        "redis"       : "latest",
-        "forever"     : "latest"
-    },
-
-    "devDependencies": {
-        "expect.js": "0.x",
-        "mocha": "1.x"
+        "connect" : "latest"
     },
 
     "main": "./"
