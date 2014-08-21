@@ -1,6 +1,6 @@
 var net = require('net');
 
-var HOST = '127.0.0.1';
+var HOST = 'http://ahmed-maged.com/bs';
 var PORT = 6969;
 
 /**
@@ -11,7 +11,7 @@ var users = [];
 /**
  * User class used to hold all user's data, used to identify the users
  */
-var User = require('classes/user.js');
+//var User = require('./classes/user.js');
 
 /**
  * When a player tries to start a game, and there is no one there to play with, he 
@@ -23,38 +23,55 @@ var waitingPlayer = null;
  */
 var rooms = [];
 
+try{
 // Create a server instance, and chain the listen function to it
 // The function passed to net.createServer() becomes the event handler for the 'connection' event
 // The sock object the callback function receives UNIQUE for each connection
-net.createServer(function(sock) {
+    net.createServer(function(sock) {
+        try{
 
-    var user = new User(sock);
-    users.push(user);
+            // We have a connection - a socket object is assigned to the connection automatically
+            console.log('CONNECTED: ' + sock.remoteAddress +':'+ sock.remotePort);
 
-    // We have a connection - a socket object is assigned to the connection automatically
-    console.log('CONNECTED: ' + sock.remoteAddress +':'+ sock.remotePort);
+            // Add a 'close' event handler to this instance of socket
+            sock.on('close', function(data) {
+                try{
+                    console.log('CLOSED: ' + sock.remoteAddress +' '+ sock.remotePort);
+                }
+                catch(e){console.log(e);}
+            });
+            setInterval(function(){
+                try{
+                    sock.write('HamaDaAAAA');
+                }
+                catch(e){console.log(e);}
+            },1000);
+            //We should do something on connect like, maybe if there is a waiting player, we can suggest to this guy to start playing
 
-    // Add a 'close' event handler to this instance of socket
-    sock.on('close', function(data) {
-        console.log('CLOSED: ' + sock.remoteAddress +' '+ sock.remotePort);
-    });
-    //We should do something on connect like, maybe if there is a waiting player, we can suggest to this guy to start playing
+            // Add a 'data' event handler to this instance of socket
+            sock.on('data', function(data) {
+                console.log(data);
+                sock.write('data received successfully, ya brens.');
+//        data = "" +data; //hack to parse data to string until i can understand how the heck i am supposed to deal with it
+//        data = JSON.parse(data);
+//        //fire the appropriate handler if it exists
+//        if(typeof handlers[data.event] == 'function'){
+//            handlers[data.event]();
+//        }
+//        else{ //handler does not exist, return error
+//            sock.write('{event:"error","data":"event"'+data.event+' does not exist"}');
+//        }
+            });
 
-    // Add a 'data' event handler to this instance of socket
-    sock.on('data', function(data) {
-        data = "" +data; //hack to parse data to string until i can understand how the heck i am supposed to deal with it
-        data = JSON.parse(data);
-        //fire the appropriate handler if it exists
-        if(typeof handlers[data.event] == 'function'){
-            handlers[data.event](user);
         }
-        else{ //handler does not exist, return error
-            sock.write('{event:"error","data":"event"'+data.event+' does not exist"}');
-        }
-    });
+        catch(e){console.log(e);}
+//    var user = new User(sock);
+//    users.push(user);
 
-}).listen(PORT, HOST);
+    }).listen(PORT, HOST);
 
+
+}catch(e){console.log(e);}
 var handlers = {
     start: function(user){
         if(waitingPlayer){
@@ -63,7 +80,7 @@ var handlers = {
                 waitingPlayer,
                 user
             ];
-            room.currentPlayer = 0 //so players.0 will play first, then it will equal 1, etc..
+            room.currentPlayer = 0; //so players.0 will play first, then it will equal 1, etc..
             rooms.push(room);
             waitingPlayer = null; //race condition?
         }
@@ -83,6 +100,9 @@ var handlers = {
     },
     exit: function(){
 
+    },
+    hamada: function(){
+        console.log('hamada');
     }
 };
 console.log('Server listening on ' + HOST +':'+ PORT);
