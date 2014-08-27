@@ -1,8 +1,8 @@
 var net = require('net');
 
-var HOST = 'http://ahmed-maged.com/bs';
+var HOST = '192.168.1.116';
 var PORT = 6969;
-
+User = require('./classes/user.js')
 /**
  * A list of all the users currently connected to the app (note: they don't have to be players, they could still be at the home screen)
  */
@@ -23,6 +23,7 @@ var waitingPlayer = null;
  */
 var rooms = [];
 
+var waitingPlayerMutex =true;
 try{
 // Create a server instance, and chain the listen function to it
 // The function passed to net.createServer() becomes the event handler for the 'connection' event
@@ -33,6 +34,8 @@ try{
             // We have a connection - a socket object is assigned to the connection automatically
             console.log('CONNECTED: ' + sock.remoteAddress +':'+ sock.remotePort);
 
+            var user = new User(sock);
+            rs.push(user);
             // Add a 'close' event handler to this instance of socket
             sock.on('close', function(data) {
                 try{
@@ -40,69 +43,71 @@ try{
                 }
                 catch(e){console.log(e);}
             });
-            setInterval(function(){
-                try{
-                    sock.write('HamaDaAAAA');
-                }
-                catch(e){console.log(e);}
-            },1000);
             //We should do something on connect like, maybe if there is a waiting player, we can suggest to this guy to start playing
 
             // Add a 'data' event handler to this instance of socket
+            
             sock.on('data', function(data) {
-                console.log(data);
-                sock.write('data received successfully, ya brens.');
-//        data = "" +data; //hack to parse data to string until i can understand how the heck i am supposed to deal with it
-//        data = JSON.parse(data);
-//        //fire the appropriate handler if it exists
-//        if(typeof handlers[data.event] == 'function'){
-//            handlers[data.event]();
-//        }
-//        else{ //handler does not exist, return error
-//            sock.write('{event:"error","data":"event"'+data.event+' does not exist"}');
-//        }
+            data = "" +data; //hack to parse data to string until i can understand how the heck i am supposed to deal with it
+            console.log(data);
+            sock.write('data received successfully, ya brens.');
+            data = JSON.parse(data);
+            console.log(data);
+
+            data.user=user;
+            //fire the appropriate handler if it exists
+            if(typeof handlers[data.event] == 'function'){
+                handlers[data.event](data);//each function passes a diffrent parameter this can't work
+            }
+            else{ //handler does not exist, return error
+                sock.write('{event:"error","data":"event"'+data.event+' does not exist"}');
+            }
             });
 
         }
-        catch(e){console.log(e);}
-//    var user = new User(sock);
-//    users.push(user);
+        catch(e){console.log(e);
+        }
 
     }).listen(PORT, HOST);
 
 
 }catch(e){console.log(e);}
+
 var handlers = {
-    start: function(user){
-        if(waitingPlayer){
+    start: function(data){
+    
+        if(waitingPlayer && waitingPlayerMutex && !(waitingPlayerMutex=false)){ //short circuit baby
+            console.log("WOW WE GOT TWO PLAYERS");
             var room = new Room();
             room.players = [
                 waitingPlayer,
-                user
+                data.user
             ];
             room.currentPlayer = 0; //so players.0 will play first, then it will equal 1, etc..
             rooms.push(room);
-            waitingPlayer = null; //race condition?
+            waitingPlayer = null;
+            waitingPlayerMutex=true;//this should fix it
+            sock.write("start");
         }
         else{
-            waitingPlayer = user;
+            waitingPlayer = data.user;
+             console.log("only one player");
+          
         }
     },
-    fireAt: function(pos){
+    fireAt: function(data){
         //1.make sure it's this player's turn
         //2.call "otherPlayer".grid.fireAt(pos);
         //3.if !"otherPlayer".grid.hasLivingShips => display win screen, display lose screen for other player
         //3.b. else, change turns
     },
-    placeShip: function(pos){
+    placeShip: function(data){
         //1.make sure that's a valid call (i.e. game has not started yet)
         //2.call
     },
-    exit: function(){
+    exit: function(data){
 
-    },
-    hamada: function(){
-        console.log('hamada');
+
     }
 };
 console.log('Server listening on ' + HOST +':'+ PORT);
