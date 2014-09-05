@@ -20,7 +20,7 @@ var User = require('./classes/user.js');
 var waitingPlayers = [];
 
 /**
- * A List of all the rooms currently in the game, all rooms should be instances of the "Room Class"
+ * A List of all the rooms currently in the game, all rooms should be instances of the "Room" Class
  */
 var rooms = {};
 
@@ -116,6 +116,8 @@ var handlers = {
     placeShip: function(data){
         //1.make sure that's a valid call (i.e. game has not started yet)
         //2.call
+        data.user.player.grid.placeShipAt(data.position);
+        notifier.updatePlayers(rooms[data.user.roomId]);
     },
     exit: function(data){
 
