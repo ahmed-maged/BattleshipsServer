@@ -1,4 +1,6 @@
-var findRoomByUserId = function(id){};
+var findRoomByUserId = function(id){
+
+};
 var generateRandomString = function(size){
 	size = size || 8;
 	var chars = "1234567890qwertyuiopasdfghjklzxcvbnm";

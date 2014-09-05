@@ -1,5 +1,5 @@
 var Grid = require('grid.js');
-exports.player = function(){
-    this.socket = null;
+exports.Player = function(sock){
+    this.socket = sock;
     this.grid = new Grid();
 };
