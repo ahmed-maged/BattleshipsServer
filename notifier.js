@@ -6,8 +6,8 @@ exports.Notifier = {
             user.socket.write(JSON.stringify({
                 event: "update",
                 data: {
-                    //myGrid,
-                    //hisGrid(public stuff only)
+                  'myGrid' :user.player.grid.getPrivateGrid() ,
+                  'oponentGrid' : room.getOtherPlayer(user).player.getPubliceGrid()
                 }
             }));
         });
