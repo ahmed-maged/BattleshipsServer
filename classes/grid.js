@@ -24,6 +24,9 @@ var Grid = function(){
 
     /**
      * Place a ship at the specified position
+     * @todo make sure that:
+     *   1.the player has unplaced ships
+     *   2.the cell is not already occupied
      *
      * @param pos
      */
