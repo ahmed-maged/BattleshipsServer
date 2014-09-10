@@ -10,3 +10,6 @@ var generateRandomString = function(size){
 	}
 	return string;
 };
+
+exports.findRoomByUserId     = findRoomByUserId;
+exports.generateRandomString = generateRandomString;
