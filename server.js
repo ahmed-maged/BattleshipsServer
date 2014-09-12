@@ -1,7 +1,7 @@
 var net = require('net');
 var _ = require('underscore');
 
-var HOST = 'localhost';
+var HOST = '192.168.1.116';
 var PORT = 6969;
 
 /**
@@ -12,7 +12,12 @@ var users = [];
 /**
  * User class used to hold all user's data, used to identify the users
  */
-var User = require('./classes/user.js');
+var User = require('./classes/user.js').User;
+
+/**
+ *
+ */
+var Room = require('./classes/room.js').Room;
 
 /**
  * When a player tries to start a game, and there is no one there to play with, he will be put in waitingPlayers
@@ -91,7 +96,9 @@ var handlers = {
             }
             //
             rooms[room.id] = room;
-            sock.write("start");
+            room.players.forEach(function(user, i){
+                user.sock.write("start");
+            });
         }
         else{
             waitingPlayers.push(data.user);
