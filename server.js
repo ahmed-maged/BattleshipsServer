@@ -1,7 +1,7 @@
 var net = require('net');
 var _ = require('underscore');
 
-var HOST = '192.168.1.116';
+var HOST = '192.168.1.71';
 var PORT = 6969;
 
 /**
@@ -97,7 +97,7 @@ var handlers = {
             //
             rooms[room.id] = room;
             room.players.forEach(function(user, i){
-                user.sock.write("start");
+                user.socket.write("start");
             });
         }
         else{
