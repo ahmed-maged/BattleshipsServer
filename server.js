@@ -1,7 +1,7 @@
 var net = require('net');
 var _ = require('underscore');
 
-var HOST = '192.168.1.71';
+var HOST = '192.168.1.67';
 var PORT = 6969;
 
 /**
@@ -52,10 +52,10 @@ try{
                 data.user=user;
                 //fire the appropriate handler if it exists
                 if(typeof handlers[data.event] == 'function'){
-                    handlers[data.event](data);
+                    handlers["start"](data);
                 }
                 else{ //handler does not exist, return error
-                    sock.write('{event:"error","data":"event"'+data.event+' does not exist"}');
+                    sock.write('{event:"error","data":"event \''+data.event+'\' does not exist"}\n');
                 }
             });
 
@@ -97,7 +97,7 @@ var handlers = {
             //
             rooms[room.id] = room;
             room.players.forEach(function(user, i){
-                user.socket.write("start");
+                user.socket.write('{"event":"start","data":""}\n');
             });
         }
         else{
