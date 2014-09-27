@@ -15,7 +15,7 @@ var users = [];
 var User = require('./classes/user.js').User;
 
 /**
- *
+ * The room class that we will instantiate room objects from
  */
 var Room = require('./classes/room.js').Room;
 
@@ -105,6 +105,29 @@ var handlers = {
             console.log("only one player");
         }
     },
+    ready: function(data){
+        var user = data.user;
+        var room = rooms[user.roomId];
+        var player = room.players.getThisPlayer(user);
+        var otherPlayer = room.players.getOtherPlayer(user);
+        //set the grid
+        for(var i=0;i<data.grid;i++)
+            data.grid[i] && player.grid.placeShipAt(i);
+
+        //check set a ready flag
+        player.isReadyForWar = true;
+        //check for the other ready flag
+        if(otherPlayer.isReadyForWar){
+            //if both flags ready, send {start}
+            room.players.forEach(function(user, i){
+                user.socket.write('{"event":"start","data":""}\n');
+            });
+            //and send {play} to the player that got ready first
+            otherPlayer.socket.write('{"event":"play","data":""}\n');
+            //also update the room with the correct turn
+            room.currentPlayer = room.getThisPlayersIndex(user);
+        }
+    },
     fireAt: function(data){
         var user = data.user;
         var room = rooms[user.roomId];
@@ -114,12 +137,19 @@ var handlers = {
             //return NOT YOUR TURN exception or something
         }
         //2.call "otherPlayer".grid.fireAt(pos);
-        otherPlayer.player.grid.fireAt(data.position);
+        var result = otherPlayer.player.grid.fireAt(data.position);
+
+        //tell this player what happened
+        user.socket.write('{"event":"playResult","data":"'+result+'"}');
+        //tell the other player what happened
+        otherPlayer.socket.write('{"event":"firedAt","data":"'+data.position+'"}');
 
         //3.b. else, change turns
         room.currentPlayer = room.currentPlayer?0:1;
-        notifier.updatePlayers(room);
+        //notify the next player of his turn
+        otherPlayer.socket.write('{"event":"play","data":""}');
     },
+    //not used
     placeShip: function(data){
         //1.make sure that's a valid call (i.e. game has not started yet)
         //2.call

@@ -38,23 +38,24 @@ var Grid = function(){
      * Fire at the specified position
      *
      * @param pos
+     * @return 1 for hit, 0 for miss
      */
     this.fireAt = function(pos){
         this.gridCells[pos].hit = true;
+        return this.gridCells[pos].occupied;
     };
     /**
-      * get the status of the cell
-      *
-      * @ return 2 if hidden 1 if hit and empty 2 if hit and occupied
-      */
-
+     * get the status of the cell
+     *
+     * @return 2 if hidden 1 if hit and empty 2 if hit and occupied
+     */
     var getPublicGrid = function(){
       var publicGrid=[];
       this.gridCells.forEach(function (cell){
         publicGrid.push(cell.getPublicCellStatus());
       });
       return publicGrid;
-    }
+    };
 
     var getPrivateGrid = function(){
       var privateGrid=[];
@@ -62,7 +63,6 @@ var Grid = function(){
         privateGrid.push(cell.getPublicCellStatus());
       });
       return privateGrid;
-
     };
     /**
      * Returns true if the player has living ships, false if all the ships are destroyed
@@ -109,7 +109,7 @@ var GridCell = function(){
           return 2;
         return 0;
       }
-    }
+    };
     var getPublicCellStatus = function(pos){
       if(this.hit){
         if(this.occupied)
