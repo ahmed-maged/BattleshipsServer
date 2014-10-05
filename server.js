@@ -1,8 +1,8 @@
 var net = require('net');
 var _ = require('underscore');
 
-var HOST = '192.168.1.67';
-var PORT = 6969;
+var HOST = '192.168.1.64';
+var PORT = 3209;
 
 /**
  * A list of all the users currently connected to the app (note: they don't have to be players, they could still be at the home screen)
@@ -46,6 +46,9 @@ try{
             });
             //We should do something on connect like, maybe if there is a waiting player, we can suggest to this guy to start playing
 
+	    sock.on('error',function(err){
+		console.log(err);
+            });
             sock.on('data', function(data) {
                 data = "" +data; //hack to parse data to string until i can understand how the heck i am supposed to deal with it
                 data = JSON.parse(data);
