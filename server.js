@@ -1,7 +1,7 @@
 var net = require('net');
 var _ = require('underscore');
 
-var HOST = '192.168.1.67';
+var HOST = '192.168.1.69';
 var PORT = 6969;
 
 /**
@@ -41,6 +41,7 @@ try{
                 try{
                     console.log('CLOSED: ' + sock.remoteAddress +' '+ sock.remotePort);
                     //todo if this sock is in waitingPlayers, remove it
+
                 }
                 catch(e){console.log(e);}
             });
@@ -48,14 +49,15 @@ try{
 
             sock.on('data', function(data) {
                 data = "" +data; //hack to parse data to string until i can understand how the heck i am supposed to deal with it
+                console.log("received"+data);
                 data = JSON.parse(data);
                 data.user=user;
                 //fire the appropriate handler if it exists
                 if(typeof handlers[data.event] == 'function'){
-                    handlers["start"](data);
+                    handlers[data.event](data);
                 }
                 else{ //handler does not exist, return error
-                    sock.write('{event:"error","data":"event \''+data.event+'\' does not exist"}\n');
+//                    sock.write('{event:"error","data":"event \''+data.event+'\' does not exist"}\n');
                 }
             });
 
@@ -97,6 +99,7 @@ var handlers = {
             //
             rooms[room.id] = room;
             room.players.forEach(function(user, i){
+                console.log('sending start event..');
                 user.socket.write('{"event":"start","data":""}\n');
             });
         }
@@ -108,8 +111,8 @@ var handlers = {
     ready: function(data){
         var user = data.user;
         var room = rooms[user.roomId];
-        var player = room.players.getThisPlayer(user);
-        var otherPlayer = room.players.getOtherPlayer(user);
+        var player = room.getThisPlayer(user);
+        var otherPlayer = room.getOtherPlayer(user);
         //set the grid
         for(var i=0;i<data.grid;i++)
             data.grid[i] && player.grid.placeShipAt(i);
@@ -122,6 +125,7 @@ var handlers = {
             room.players.forEach(function(user, i){
                 user.socket.write('{"event":"start","data":""}\n');
             });
+            console.log("sending play to first ready player...");
             //and send {play} to the player that got ready first
             otherPlayer.socket.write('{"event":"play","data":""}\n');
             //also update the room with the correct turn
@@ -129,21 +133,26 @@ var handlers = {
         }
     },
     fireAt: function(data){
+        console.log('firing at...');
         var user = data.user;
         var room = rooms[user.roomId];
-        var otherPlayer = room.players.getOtherPlayer(user);
+        var otherPlayer = room.getOtherPlayer(user);
         //1.make sure it's this player's turn
         if(room.players.indexOf(otherPlayer) !== room.currentPlayer){
+            console.log('wrong turn!');
+            return;
             //return NOT YOUR TURN exception or something
         }
+        console.log('the other player is: ');
+        console.log(otherPlayer);
         //2.call "otherPlayer".grid.fireAt(pos);
-        var result = otherPlayer.player.grid.fireAt(data.position);
+        var result = otherPlayer.grid.fireAt(data.position);
 
         //tell this player what happened
         user.socket.write('{"event":"playResult","data":"'+result+'"}');
         //tell the other player what happened
         otherPlayer.socket.write('{"event":"firedAt","data":"'+data.position+'"}');
-
+console.log('telling the other player its his turn..');
         //3.b. else, change turns
         room.currentPlayer = room.currentPlayer?0:1;
         //notify the next player of his turn
