@@ -51,11 +51,14 @@ try{
                 console.log(err);
             });
             sock.on('data', function(data) {
-                data = "" +data; //hack to parse data to string until i can understand how the heck i am supposed to deal with it
+                data = "" +data; //hack to parse data to string until i can understand how the heck i am supposed to deal with this buffer object
+                console.log('recieving a message from a client: ');
+                console.log(data);
                 data = JSON.parse(data);
                 data.user=user;
                 //fire the appropriate handler if it exists
                 if(typeof handlers[data.event] == 'function'){
+                    console.log('calling '+data.event+'...');
                     handlers[data.event](data);
                 }
                 else{ //handler does not exist, return error
