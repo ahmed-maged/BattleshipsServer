@@ -1,7 +1,7 @@
 var net = require('net');
 var _ = require('underscore');
 
-var HOST = '192.168.1.69';
+var HOST = '107.150.1.233';
 var PORT = 6969;
 
 /**
