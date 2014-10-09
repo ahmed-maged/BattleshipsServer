@@ -1,4 +1,5 @@
 var helpers = require('../helpers.js');
+var player = require('./player.js');
 var User = function(sock){
 
     /**
@@ -26,7 +27,7 @@ var User = function(sock){
      * If the user is playing, this should be his player info
      * @type {null|Player}
      */
-    this.player = null;
+    this.player = new player.Player(sock);
 };
 
 exports.User = User;

@@ -1,6 +1,6 @@
-var Grid = require('grid.js');
+var Grid = require('./grid.js');
 exports.Player = function(sock){
     this.socket = sock;
-    this.grid = new Grid();
+    this.grid = new Grid.Grid();
     this.isReadyForWar = false;
 };

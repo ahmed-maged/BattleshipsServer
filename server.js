@@ -47,8 +47,8 @@ try{
             });
             //We should do something on connect like, maybe if there is a waiting player, we can suggest to this guy to start playing
 
-	    sock.on('error',function(err){
-		console.log(err);
+            sock.on('error',function(err){
+                console.log(err);
             });
             sock.on('data', function(data) {
                 data = "" +data; //hack to parse data to string until i can understand how the heck i am supposed to deal with it
@@ -141,17 +141,17 @@ var handlers = {
             //return NOT YOUR TURN exception or something
         }
         //2.call "otherPlayer".grid.fireAt(pos);
-        var result = otherPlayer.grid.fireAt(data.position);
+        var result = otherPlayer.player.grid.fireAt(data.position);
 
         //tell this player what happened
-        user.socket.write('{"event":"playResult","data":"'+result+'"}');
+        user.socket.write("{\"event\":\"playResult\",\"data\":\""+result+"\"}\n");
         //tell the other player what happened
-        otherPlayer.socket.write('{"event":"firedAt","data":"'+data.position+'"}');
+        otherPlayer.socket.write("{\"event\":\"firedAt\",\"data\":\""+data.position+"\"}\n");
 
         //3.b. else, change turns
         room.currentPlayer = room.currentPlayer?0:1;
         //notify the next player of his turn
-        otherPlayer.socket.write('{"event":"play","data":""}');
+        otherPlayer.socket.write("{\"event\":\"play\",\"data\":\"\"}\n");
     },
     //not used
     placeShip: function(data){
