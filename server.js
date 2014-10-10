@@ -120,7 +120,7 @@ var handlers = {
         var otherPlayer = room.getOtherPlayer(user);
         //set the grid
         for(var i=0;i<data.grid.length;i++)
-            data.grid[i] && player.grid.placeShipAt(i);
+            data.grid[i] && player.player.grid.placeShipAt(i);
 
         //check set a ready flag
         player.isReadyForWar = true;
