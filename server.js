@@ -104,6 +104,7 @@ var handlers = {
             //
             rooms[room.id] = room;
             room.players.forEach(function(user, i){
+                console.log("sending start...");
                 user.socket.write('{"event":"start","data":""}\n');
             });
         }
@@ -127,12 +128,16 @@ var handlers = {
         if(otherPlayer.isReadyForWar){
             //if both flags ready, send {start}
             room.players.forEach(function(user, i){
+                console.log("sending starrt...");
                 user.socket.write('{"event":"start","data":""}\n');
             });
-            //and send {play} to the player that got ready first
-            otherPlayer.socket.write('{"event":"play","data":""}\n');
-            //also update the room with the correct turn
-            room.currentPlayer = room.getThisPlayersIndex(user);
+            setTimeout(function(){ //i really feel bad about this
+                console.log("sending play for the first player...");
+                //and send {play} to the player that got ready first
+                otherPlayer.socket.write('{"event":"play","data":""}\n');
+                //also update the room with the correct turn
+                room.currentPlayer = room.getThisPlayersIndex(user);
+            },1500);
         }
     },
     fireAt: function(data){
@@ -146,13 +151,19 @@ var handlers = {
         //2.call "otherPlayer".grid.fireAt(pos);
         var result = otherPlayer.player.grid.fireAt(data.position);
 
+        console.log("firing at: "+data.position);
+
+        console.log("sending play result...");
         //tell this player what happened
         user.socket.write("{\"event\":\"playResult\",\"data\":\""+result+"\"}\n");
+
+        console.log("letting thje other playetr know they're being fired at...");
         //tell the other player what happened
         otherPlayer.socket.write("{\"event\":\"firedAt\",\"data\":\""+data.position+"\"}\n");
 
         //3.b. else, change turns
         room.currentPlayer = room.currentPlayer?0:1;
+        console.log("sending play to the next player...");
         //notify the next player of his turn
         otherPlayer.socket.write("{\"event\":\"play\",\"data\":\"\"}\n");
     },
